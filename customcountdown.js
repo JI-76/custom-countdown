@@ -22,8 +22,9 @@ let countdownTitle = '';
 let countdownDate = '';
 let countdownValue = Date;
 let countdownActive;
+let savedCountdown;
 
-// Time unit constants
+// Add Time unit constants
 const second = 1000;
 const minute = second * 60;
 const hour = minute * 60;
@@ -32,7 +33,7 @@ const day = hour * 24;
 // Set Date Input Min with current date
 const today = new Date().toISOString().split('T')[0];
 //console.log(today);
-
+// Make the date chosen the miniumum date to avoid backdated events
 dateEl.setAttribute('min', today);
 
 // Populate Countdown UI \ Completed Countdown UI
@@ -44,7 +45,7 @@ function updateDOM() {
         const now = new Date().getTime();
         // calculate the difference between the Event date in the future and current date
         const distance = countdownValue - now;
-        console.log('distance', distance);
+        // console.log('distance', distance);
 
         // Calculate days remaining
         // returns largest whole number
@@ -59,7 +60,7 @@ function updateDOM() {
         // returns remainder
         const seconds = Math.floor((distance % minute) / second);
 
-        console.log(days, hours, minutes, seconds);
+        // console.log(days, hours, minutes, seconds);
 
         // Hide Input UI View
         inputContainer.hidden = true;
@@ -94,10 +95,19 @@ function updateCountdown(e) {
     // capture Form Input values
     countdownTitle = e.srcElement[0].value;
     countdownDate = e.srcElement[1].value;
+    // countdown title and date object
+    savedCountdown = {
+        title: countdownTitle,
+        date: countdownDate,
+    };
+    // console.log(savedCountdown);
+
+    // persist countdown title and date object
+    localStorage.setItem('countdown', JSON.stringify(savedCountdown));
 
     //console.log(e);
-    console.log(countdownTitle);
-    console.log(countdownDate);
+    // console.log(countdownTitle);
+    // console.log(countdownDate);
 
     // Check for valid date
     if (countdownDate === '') {
@@ -106,7 +116,7 @@ function updateCountdown(e) {
     } else {
         // Get number version of current Date
         countdownValue = new Date(countdownDate).getTime();
-        console.log('countdown value', countdownValue);
+        // console.log('countdown value', countdownValue);
 
         // update webpage DOM
         updateDOM();
@@ -125,10 +135,31 @@ function reset() {
     // Reset values for Countdown UI View
     countdownTitle = '';
     countdownDate  = '';
+    
+    // clear out saved countdown
+    localStorage.removeItem('countdown');
+};
 
+// Retrieve Countdown data from local storage if it exists
+function restorePreviousCountdown() {
+    if (localStorage.getItem('countdown')) {
+        // hide Input UI View
+        inputContainer.hidden = true;
+        // retrieve saved Countdown data from local storage
+        savedCountdown = JSON.parse(localStorage.getItem('countdown'));
+        // assign retrieved data values to the global variables
+        countdownTitle = savedCountdown.title;
+        countdownDate = savedCountdown.date;
+
+        countdownValue = new Date(countdownDate).getTime();
+        updateDOM();
+    };
 };
 
 // Event Listeners
 countdownForm.addEventListener('submit', updateCountdown);
 countdownBtn.addEventListener('click', reset);
 completeEl.addEventListener('click', reset);
+
+// On Load, check local storage
+restorePreviousCountdown();
