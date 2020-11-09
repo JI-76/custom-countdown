@@ -12,10 +12,16 @@ const countdownBtn = document.getElementById('countdown-button');
 // returns an array of HTML elements (Days, Hours, Minutes, Seconds)
 const timeElements = document.querySelectorAll('span');
 
+// Add const to handle HTML elements on Completed Countdown UI View
+const completeEl = document.getElementById('complete');
+const completeElInfo = document.getElementById('complete-info');
+const completeBtn = document.getElementById('complete-button');
+
 // Add global variables
 let countdownTitle = '';
 let countdownDate = '';
 let countdownValue = Date;
+let countdownActive;
 
 // Time unit constants
 const second = 1000;
@@ -31,38 +37,53 @@ dateEl.setAttribute('min', today);
 
 // Populate Countdown UI \ Completed Countdown UI
 function updateDOM() {
-    // returns milliseconds since Unix Epoch (1/1/1970)
-    const now = new Date().getTime();
-    // calculate the difference between the Event date in the future and current date
-    const distance = countdownValue - now;
-    console.log('distance', distance);
+    // use Javascript Timing Event to fire the code 
+    countdownActive = setInterval(() => {
 
-    // Calculate days remaining
-    // returns largest whole number
-    const days = Math.floor(distance / day);
-    // Calculate hours remaining
-    // returns remainder
-    const hours = Math.floor((distance % day) / hour);
-    // Calculate minutes remaining
-    // returns remainder
-    const minutes = Math.floor((distance % hour) / minute);
-    // Calculate seconds remaining
-    // returns remainder
-    const seconds = Math.floor((distance % minute) / second);
-    console.log(days, hours, minutes, seconds);
+        // returns milliseconds since Unix Epoch (1/1/1970)
+        const now = new Date().getTime();
+        // calculate the difference between the Event date in the future and current date
+        const distance = countdownValue - now;
+        console.log('distance', distance);
 
-    // Populate Countdown UI View HTML elements
-    countdownElTitle.textContent = `${countdownTitle}`;
-    timeElements[0].textContent = `${days}`;
-    timeElements[1].textContent = `${hours}`;
-    timeElements[2].textContent = `${minutes}`;
-    timeElements[3].textContent = `${seconds}`;
+        // Calculate days remaining
+        // returns largest whole number
+        const days = Math.floor(distance / day);
+        // Calculate hours remaining
+        // returns remainder
+        const hours = Math.floor((distance % day) / hour);
+        // Calculate minutes remaining
+        // returns remainder
+        const minutes = Math.floor((distance % hour) / minute);
+        // Calculate seconds remaining
+        // returns remainder
+        const seconds = Math.floor((distance % minute) / second);
 
-    // Hide Input UI View
-    inputContainer.hidden = true;
+        console.log(days, hours, minutes, seconds);
 
-    // Show Countdown UI View
-    countdownEl.hidden = false;
+        // Hide Input UI View
+        inputContainer.hidden = true;
+
+        // If countdown has ended; show the Completed Countdown UI View
+        if (distance < 0) {
+            countdownEl.hidden = true;
+            clearInterval(countdownActive);
+            completeElInfo.textContent = `${countdownTitle} finished on ${countdownDate}`;
+            completeEl.hidden = false;
+
+        } else {
+            // Else show the countdown in progress aka the Countdown UI View
+            // Populate Countdown UI View HTML elements
+            countdownElTitle.textContent = `${countdownTitle}`;
+            timeElements[0].textContent = `${days}`;
+            timeElements[1].textContent = `${hours}`;
+            timeElements[2].textContent = `${minutes}`;
+            timeElements[3].textContent = `${seconds}`;
+            // switch UI Views
+            completeEl.hidden = true;
+            countdownEl.hidden = false
+        };
+    }, second);    
 };
 
 // Gather  Input UI View Form Input values
@@ -78,14 +99,34 @@ function updateCountdown(e) {
     console.log(countdownTitle);
     console.log(countdownDate);
 
-    // Get number version of current Date
-    countdownValue = new Date(countdownDate).getTime();
-    console.log('countdown value', countdownValue);
+    // Check for valid date
+    if (countdownDate === '') {
+        // inform user
+        alert('Please select a date for the countdown');
+    } else {
+        // Get number version of current Date
+        countdownValue = new Date(countdownDate).getTime();
+        console.log('countdown value', countdownValue);
 
-    // update webpage DOM
-    updateDOM();
+        // update webpage DOM
+        updateDOM();
+    };
 };
 
+// Reset All Values
+function reset() {
+    // Hide Countdown UI View
+    countdownEl.hidden = true;
+    // Show Input UI View
+    inputContainer.hidden = false;
+    // Stop the countdown using Javascript Timing Event
+    clearInterval(countdownActive);
+    // Reset values for Countdown UI View
+    countdownTitle = '';
+    countdownDate  = '';
+};
 
 // Event Listeners
 countdownForm.addEventListener('submit', updateCountdown);
+countdownBtn.addEventListener('click', reset);
+
