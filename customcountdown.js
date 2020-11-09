@@ -70,7 +70,6 @@ function updateDOM() {
             clearInterval(countdownActive);
             completeElInfo.textContent = `${countdownTitle} finished on ${countdownDate}`;
             completeEl.hidden = false;
-
         } else {
             // Else show the countdown in progress aka the Countdown UI View
             // Populate Countdown UI View HTML elements
@@ -79,6 +78,7 @@ function updateDOM() {
             timeElements[1].textContent = `${hours}`;
             timeElements[2].textContent = `${minutes}`;
             timeElements[3].textContent = `${seconds}`;
+
             // switch UI Views
             completeEl.hidden = true;
             countdownEl.hidden = false
@@ -86,7 +86,7 @@ function updateDOM() {
     }, second);    
 };
 
-// Gather  Input UI View Form Input values
+// Gather Input UI View Form Input values
 function updateCountdown(e) {
     // prevent page from refreshing and clearing input values
     e.preventDefault();
@@ -117,6 +117,7 @@ function updateCountdown(e) {
 function reset() {
     // Hide Countdown UI View
     countdownEl.hidden = true;
+    completeEl.hidden = true;
     // Show Input UI View
     inputContainer.hidden = false;
     // Stop the countdown using Javascript Timing Event
@@ -124,9 +125,10 @@ function reset() {
     // Reset values for Countdown UI View
     countdownTitle = '';
     countdownDate  = '';
+
 };
 
 // Event Listeners
 countdownForm.addEventListener('submit', updateCountdown);
 countdownBtn.addEventListener('click', reset);
-
+completeEl.addEventListener('click', reset);
